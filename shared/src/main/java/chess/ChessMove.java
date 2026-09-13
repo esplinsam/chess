@@ -10,20 +10,24 @@ public class ChessMove {
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
+        // Processes move information of the chess piece
     }
 
     /**
      * @return ChessPosition of starting location
      */
     public ChessPosition getStartPosition() {
-        throw new RuntimeException("Not implemented");
+        // simply return the actual value of ChessPiece.ChessPosition
+        return null;
     }
 
     /**
      * @return ChessPosition of ending location
      */
     public ChessPosition getEndPosition() {
-        throw new RuntimeException("Not implemented");
+        // Possibly get user input for a ChessPosition
+        // and return that position
+        return null;
     }
 
     /**
@@ -33,6 +37,10 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        throw new RuntimeException("Not implemented");
+        // defaults to null unless the piece is a pawn
+        // and the EndPosition of the move is on the
+        // opponents back rank, in which case, get
+        // input for which piece to promote to
+        return null;
     }
 }

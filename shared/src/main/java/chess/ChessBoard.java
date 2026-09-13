@@ -9,7 +9,7 @@ package chess;
 public class ChessBoard {
 
     public ChessBoard() {
-        
+        // Implement the chess board as a two-d array
     }
 
     /**
@@ -19,7 +19,8 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        throw new RuntimeException("Not implemented");
+        // Add a piece of class ChessPiece to the board at ChessPosition
+        // Simply modify value of ChessBoard array at ChessPosition
     }
 
     /**
@@ -30,7 +31,8 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        throw new RuntimeException("Not implemented");
+        // Return the value in the ChessBoard's array at ChessPosition
+        return null;
     }
 
     /**
@@ -38,6 +40,7 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        // Clear ChessBoard, setting everything to null
+        // Then, use addPiece method to systematically add the pieces
     }
 }
