@@ -7,10 +7,16 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessMove {
+    public ChessPosition startPosition;
+    public ChessPosition endPosition;
+    public ChessPiece.PieceType promotionPiece;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
         // Processes move information of the chess piece
+        this.startPosition = startPosition;
+        this.endPosition = endPosition;
+        this.promotionPiece = promotionPiece;
     }
 
     /**

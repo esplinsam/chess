@@ -9,7 +9,8 @@ package chess;
 public class ChessBoard {
 
     public ChessBoard() {
-        // Implement the chess board as a two-d array
+        // Implement the chess board as a two-d array of chess pieces
+        chess.ChessPiece[][] board = new chess.ChessPiece[8][8];
     }
 
     /**

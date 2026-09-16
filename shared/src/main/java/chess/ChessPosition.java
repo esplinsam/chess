@@ -7,8 +7,12 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessPosition {
+    public int row;
+    public int column;
 
     public ChessPosition(int row, int col) {
+        this.row = row;
+        this.column = column;
     }
 
     /**
