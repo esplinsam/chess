@@ -15,12 +15,28 @@ public class ChessPosition {
         this.column = column;
     }
 
+    public static void main(String[] args) {
+        chess.ChessPosition first = new chess.ChessPosition(2, 6);
+        chess.ChessPosition same = new chess.ChessPosition(2, 6);
+        chess.ChessPosition reversed = new chess.ChessPosition(6, 2);
+
+        assert first.getRow() == 2 : "Incorrect Row";
+        assert first.getColumn() == 6 : "Incorrect column";
+        assert first.equals(same) : "Equivalent positions should be equal";
+        assert !first.equals(reversed) : "Different position should not be equal";
+        assert first.hashCode() == same.hashCode() : "Equivalent positions need same hash code";
+
+        System.out.println("All ChessPosition checks passed.");
+
+    }
+
+
     /**
      * @return which row this position is in
      * 1 codes for the bottom row
      */
     public int getRow() {
-        return 0;
+        return this.row;
     }
 
     /**
@@ -28,6 +44,10 @@ public class ChessPosition {
      * 1 codes for the left column
      */
     public int getColumn() {
-        return 0;
+        return this.column;
+    }
+
+    public boolean equals(chess.ChessPosition chessPosition) {
+        return (chessPosition.getColumn() == this.getRow()) && (chessPosition.getRow() == this.getRow());
     }
 }
