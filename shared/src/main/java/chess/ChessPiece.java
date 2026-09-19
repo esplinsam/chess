@@ -136,6 +136,53 @@ public class ChessPiece {
     }
 
     /**
+     * Helper method for adding queen moves
+     */
+    public void addQueenMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves) {
+        int [][] directions = {
+                {1, 1},
+                {1, -1},
+                {-1, 1},
+                {-1, -1},
+                {0, 1},
+                {0, -1},
+                {1, 0},
+                {-1, 0}
+        };
+
+        for (int[] direction: directions) {
+            int row = myPosition.getRow() + direction[0];
+            int col = myPosition.getColumn() + direction[1];
+
+            while (row >= 1 && col >= 1
+                    && row <= 8 && col <= 8) {
+                // Define the target position and the piece occupying that square
+                ChessPosition endPosition = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(endPosition);
+
+                // Define the move to make
+                ChessMove move = new ChessMove(myPosition, endPosition, null);
+
+                if (piece == null) { // simply add the move if the square is empty
+                    moves.add(move);
+                }
+                else if (this.pieceColor != piece.getTeamColor()) { // if square is occupied by opposing piece add move and stop looking in that direction
+                    moves.add(move);
+                    break;
+                }
+                else { // if square is occupied by piece of same color stop looking in that direction
+                    break;
+                }
+
+                // move to the next square in that direction
+                row += direction[0];
+                col += direction[1];
+
+            }
+        }
+    }
+
+    /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
@@ -158,7 +205,7 @@ public class ChessPiece {
                 // Implement horsie's moveset here
             }
             case QUEEN -> {
-                // Implement queen's moveset here
+                addQueenMoves(board, myPosition, moves);
             }
             case KING -> {
                 // Implement king's moveset here
