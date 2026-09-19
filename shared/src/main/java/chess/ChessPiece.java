@@ -219,6 +219,42 @@ public class ChessPiece {
     }
 
     /**
+     * Helper function for adding king moves
+     */
+    public void addKingMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves) {
+        int[][] directions = {
+                {1, 0},
+                {-1, 0},
+                {0, 1},
+                {0, -1},
+                {1, 1},
+                {1, -1},
+                {-1, 1},
+                {-1, -1}
+        };
+
+        for (int[] direction: directions) {
+            int row = myPosition.getRow() + direction[0];
+            int col = myPosition.getColumn() + direction[1];
+            if (row >= 1 && col >= 1
+                    && row <= 8 && col <= 8) {
+                // Define an end position and find which piece is there
+                ChessPosition endPosition = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(endPosition);
+
+                // Define the move to make
+                ChessMove move = new ChessMove(myPosition, endPosition, null);
+
+                if (piece == null) {
+                    moves.add(move);
+                } else if (this.pieceColor != piece.getTeamColor()) {
+                    moves.add(move);
+                }
+            }
+        }
+    }
+
+    /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
@@ -244,7 +280,7 @@ public class ChessPiece {
                 addQueenMoves(board, myPosition, moves);
             }
             case KING -> {
-                // Implement king's moveset here
+                addKingMoves(board, myPosition, moves);
             }
             case PAWN -> {
                 // Implement pawn's moveset here
