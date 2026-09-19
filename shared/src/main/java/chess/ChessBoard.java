@@ -7,10 +7,11 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessBoard {
+    ChessPiece[][] board = new ChessPiece[8][8];
 
     public ChessBoard() {
         // Implement the chess board as a two-d array of chess pieces
-        chess.ChessPiece[][] board = new chess.ChessPiece[8][8];
+
     }
 
     /**
@@ -22,6 +23,7 @@ public class ChessBoard {
     public void addPiece(ChessPosition position, ChessPiece piece) {
         // Add a piece of class ChessPiece to the board at ChessPosition
         // Simply modify value of ChessBoard array at ChessPosition
+        board[position.getRow()][position.getColumn()] = piece;
     }
 
     /**
@@ -33,7 +35,7 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         // Return the value in the ChessBoard's array at ChessPosition
-        return null;
+        return board[position.getRow()][position.getColumn()];
     }
 
     /**
@@ -43,5 +45,48 @@ public class ChessBoard {
     public void resetBoard() {
         // Clear ChessBoard, setting everything to null
         // Then, use addPiece method to systematically add the pieces
+        for (int i=0; i < 8; i++) {
+            for (int j=0; j < 8; j++) {
+                // fill every square with null
+                board[i][j] = null;
+            }
+        }
+
+        // put pawns into place
+        for (int i = 0; i < 8; i++) {
+            board[1][i] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+            board[6][i] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+        }
+
+        // put rooks into place
+        board[0][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
+        board[0][7] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
+        board[7][0] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
+        board[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
+
+        // put bishops into place
+        board[0][1] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
+        board[0][6] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
+        board[7][1] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
+        board[7][6] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
+
+        // put horsies into place
+        board[0][2] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
+        board[0][5] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
+        board[7][2] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
+        board[7][5] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
+
+        // put queens into place
+        board[0][3] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
+        board[7][3] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
+        
+        // put kings into place
+        board[0][4] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
+        board[7][4] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
+
+
+
+
+
     }
 }
