@@ -23,7 +23,7 @@ public class ChessBoard {
     public void addPiece(ChessPosition position, ChessPiece piece) {
         // Add a piece of class ChessPiece to the board at ChessPosition
         // Simply modify value of ChessBoard array at ChessPosition
-        board[position.getRow()][position.getColumn()] = piece;
+        board[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
     /**
@@ -79,7 +79,7 @@ public class ChessBoard {
         // put queens into place
         board[0][3] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
         board[7][3] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
-        
+
         // put kings into place
         board[0][4] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
         board[7][4] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
