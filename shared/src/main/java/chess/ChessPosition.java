@@ -55,19 +55,4 @@ public class ChessPosition {
     public int hashCode() {
         return Objects.hash(row, column);
     }
-
-    public static void main(String[] args) {
-        chess.ChessPosition first = new chess.ChessPosition(2, 6);
-        chess.ChessPosition same = new chess.ChessPosition(2, 6);
-        chess.ChessPosition reversed = new chess.ChessPosition(6, 2);
-
-        assert first.getRow() == 2 : "Incorrect Row";
-        assert first.getColumn() == 6 : "Incorrect column";
-        assert first.equals(same) : "Equivalent positions should be equal";
-        assert !first.equals(reversed) : "Different position should not be equal";
-        assert first.hashCode() == same.hashCode() : "Equivalent positions need same hash code";
-
-        System.out.println("All ChessPosition checks passed.");
-
-    }
 }

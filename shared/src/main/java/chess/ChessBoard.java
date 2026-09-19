@@ -1,5 +1,8 @@
 package chess;
 
+import java.util.Objects;
+import java.util.Arrays;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -10,7 +13,7 @@ public class ChessBoard {
     ChessPiece[][] board = new ChessPiece[8][8];
 
     public ChessBoard() {
-        // Implement the chess board as a two-d array of chess pieces
+        // Implement the chess board as a two-d array of chess piece
 
     }
 
@@ -35,7 +38,7 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         // Return the value in the ChessBoard's array at ChessPosition
-        return board[position.getRow()][position.getColumn()];
+        return board[position.getRow() - 1][position.getColumn() - 1];
     }
 
     /**
@@ -83,10 +86,34 @@ public class ChessBoard {
         // put kings into place
         board[0][4] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
         board[7][4] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
+    }
 
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
 
+        // Quickly check to make sure the other object is also of the class ChessPosition
+        if (!(object instanceof ChessBoard)) {
+            return false;
+        }
 
+        ChessBoard other = (ChessBoard) object;
 
+        // Compare their saved data directly
+        for (int i=0; i < 8; i++) {
+            for (int j=0; j < 8; j++) {
+                if (!(Objects.equals(board[i][j], other.board[i][j]))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(board);
     }
 }
