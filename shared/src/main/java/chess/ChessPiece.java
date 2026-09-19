@@ -93,14 +93,14 @@ public class ChessPiece {
     }
 
     /**
-     * Helper method for adding bishop moves
+     * Helper method for adding rook moves
      */
     public void addRookMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves) {
         int [][] directions = {
-                {1, 1},
-                {1, -1},
-                {-1, 1},
-                {-1, -1}
+                {0, 1},
+                {0, -1},
+                {1, 0},
+                {-1, 0}
         };
 
         for (int[] direction: directions) {
@@ -152,7 +152,7 @@ public class ChessPiece {
             case BISHOP ->
                 addBishopMoves(board, myPosition, moves);
             case ROOK -> {
-                // Implement rook's moveset here
+                addRookMoves(board, myPosition, moves);
             }
             case KNIGHT -> {
                 // Implement horsie's moveset here
