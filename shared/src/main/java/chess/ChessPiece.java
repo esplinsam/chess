@@ -50,6 +50,14 @@ public class ChessPiece {
     }
 
     /**
+     * @return whether or not given position is on the board
+     */
+    public boolean onBoard(int row, int col) {
+        return (row >= 1 && col >= 1
+                && row <= 8 && col <= 8);
+    }
+
+    /**
      * Helper method for adding bishop moves
      */
     public void addBishopMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves) {
@@ -64,8 +72,7 @@ public class ChessPiece {
             int row = myPosition.getRow() + direction[0];
             int col = myPosition.getColumn() + direction[1];
 
-            while (row >= 1 && col >= 1
-                    && row <= 8 && col <= 8) {
+            while (onBoard(row, col)) {
                 // Define the target position and the piece occupying that square
                 ChessPosition endPosition = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(endPosition);
@@ -107,8 +114,7 @@ public class ChessPiece {
             int row = myPosition.getRow() + direction[0];
             int col = myPosition.getColumn() + direction[1];
 
-            while (row >= 1 && col >= 1
-                    && row <= 8 && col <= 8) {
+            while (onBoard(row, col)) {
                 // Define the target position and the piece occupying that square
                 ChessPosition endPosition = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(endPosition);
@@ -154,8 +160,7 @@ public class ChessPiece {
             int row = myPosition.getRow() + direction[0];
             int col = myPosition.getColumn() + direction[1];
 
-            while (row >= 1 && col >= 1
-                    && row <= 8 && col <= 8) {
+            while (onBoard(row, col)) {
                 // Define the target position and the piece occupying that square
                 ChessPosition endPosition = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(endPosition);
@@ -200,8 +205,7 @@ public class ChessPiece {
         for (int[] direction: directions) {
             int row = myPosition.getRow() + direction[0];
             int col = myPosition.getColumn() + direction[1];
-            if (row >= 1 && col >= 1
-                    && row <= 8 && col <= 8) {
+            if (onBoard(row, col)) {
                 // Define an end position and find which piece is there
                 ChessPosition endPosition = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(endPosition);
@@ -236,8 +240,7 @@ public class ChessPiece {
         for (int[] direction: directions) {
             int row = myPosition.getRow() + direction[0];
             int col = myPosition.getColumn() + direction[1];
-            if (row >= 1 && col >= 1
-                    && row <= 8 && col <= 8) {
+            if (onBoard(row, col)) {
                 // Define an end position and find which piece is there
                 ChessPosition endPosition = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(endPosition);
@@ -252,6 +255,121 @@ public class ChessPiece {
                 }
             }
         }
+    }
+
+    /**
+     * Helper function for adding pawn moves
+     */
+    public void addPawnMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves) {
+        int direction;
+        int startingRow;
+        int promotionRow;
+
+        // Set a few variables based on color
+        if (this.pieceColor == ChessGame.TeamColor.WHITE) {
+            direction = 1;
+            startingRow = 2;
+            promotionRow = 8;
+        } else{
+            direction = -1;
+            startingRow = 7;
+            promotionRow = 1;
+        }
+
+        // One square forward move
+        int row = myPosition.getRow() + direction;
+        int col = myPosition.getColumn();
+        ChessPosition endPosition = new ChessPosition(row, col);
+
+        if (onBoard(row, col)) {
+            ChessPiece piece = board.getPiece(endPosition);
+            if (piece == null) {
+                if (row == promotionRow) {
+                    ChessMove makeQueen = new ChessMove(myPosition, endPosition, PieceType.QUEEN);
+                    ChessMove makeRook = new ChessMove(myPosition, endPosition, PieceType.ROOK);
+                    ChessMove makeHorsie = new ChessMove(myPosition, endPosition, PieceType.KNIGHT);
+                    ChessMove makeBishop = new ChessMove(myPosition, endPosition, PieceType.BISHOP);
+                    moves.add(makeQueen);
+                    moves.add(makeRook);
+                    moves.add(makeHorsie);
+                    moves.add(makeBishop);
+                }
+                else {
+                    ChessMove move = new ChessMove(myPosition, endPosition, null);
+                    moves.add(move);
+                }
+            }
+        }
+
+        // two square forward initial move
+        if (myPosition.getRow() == startingRow) {
+            ChessPosition betweenPosition = new ChessPosition(row, col);
+            row += direction;
+            endPosition = new ChessPosition(row, col);
+
+            ChessPiece betweenPiece = board.getPiece(betweenPosition);
+            ChessPiece piece = board.getPiece(endPosition);
+            if (betweenPiece == null && piece == null) {
+                ChessMove move = new ChessMove(myPosition, endPosition, null);
+                moves.add(move);
+            }
+            row -= direction;
+        }
+
+        // capture on diagonals
+        int left = col - 1;
+        int right = col + 1;
+        ChessPosition leftDiag = new ChessPosition(row, left);
+        ChessPosition rightDiag = new ChessPosition(row, right);
+
+        if (onBoard(row, left)) {
+            ChessPiece leftPiece = board.getPiece(leftDiag);
+            if (leftPiece != null) {
+                if (leftPiece.pieceColor != this.pieceColor) {
+                    if (row == promotionRow) {
+                        ChessMove makeQueen = new ChessMove(myPosition, leftDiag, PieceType.QUEEN);
+                        ChessMove makeRook = new ChessMove(myPosition, leftDiag, PieceType.ROOK);
+                        ChessMove makeHorsie = new ChessMove(myPosition, leftDiag, PieceType.KNIGHT);
+                        ChessMove makeBishop = new ChessMove(myPosition, leftDiag, PieceType.BISHOP);
+                        moves.add(makeQueen);
+                        moves.add(makeRook);
+                        moves.add(makeHorsie);
+                        moves.add(makeBishop);
+                    }
+                    else {
+                        ChessMove move = new ChessMove(myPosition, leftDiag, null);
+                        moves.add(move);
+                    }
+                }
+            }
+        }
+
+        if (onBoard(row, right)) {
+            ChessPiece rightPiece = board.getPiece(rightDiag);
+            if (rightPiece != null) {
+                if (rightPiece.pieceColor != this.pieceColor) {
+                    if (row == promotionRow) {
+                        ChessMove makeQueen = new ChessMove(myPosition, rightDiag, PieceType.QUEEN);
+                        ChessMove makeRook = new ChessMove(myPosition, rightDiag, PieceType.ROOK);
+                        ChessMove makeHorsie = new ChessMove(myPosition, rightDiag, PieceType.KNIGHT);
+                        ChessMove makeBishop = new ChessMove(myPosition, rightDiag, PieceType.BISHOP);
+                        moves.add(makeQueen);
+                        moves.add(makeRook);
+                        moves.add(makeHorsie);
+                        moves.add(makeBishop);
+                    }
+                    else {
+                        ChessMove move = new ChessMove(myPosition, rightDiag, null);
+                        moves.add(move);
+                    }
+                }
+            }
+        }
+
+        // promotion
+
+
+
     }
 
     /**
@@ -283,7 +401,7 @@ public class ChessPiece {
                 addKingMoves(board, myPosition, moves);
             }
             case PAWN -> {
-                // Implement pawn's moveset here
+                addPawnMoves(board, myPosition, moves);
             }
         }
 
