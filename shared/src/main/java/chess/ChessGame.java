@@ -2,8 +2,8 @@ package chess;
 
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * A class that can manage a chess game, making moves on a board
@@ -14,8 +14,8 @@ import java.util.ArrayList;
 public class ChessGame {
     ChessBoard board = new ChessBoard();
     ChessGame.TeamColor whoseTurn = TeamColor.WHITE;
-    ArrayList<int[]> whitePieces = new ArrayList<>();
-    ArrayList<int[]> blackPieces = new ArrayList<>();
+    ArrayList<ChessPosition> whitePieces = new ArrayList<>();
+    ArrayList<ChessPosition> blackPieces = new ArrayList<>();
 
 
     public ChessGame() {
@@ -29,10 +29,10 @@ public class ChessGame {
             secondRank[1] = i;
             seventhRank[1] = i;
             eighthRank[1] = i;
-            whitePieces.add(firstRank);
-            whitePieces.add(secondRank);
-            blackPieces.add(seventhRank);
-            blackPieces.add(eighthRank);
+            whitePieces.add(new ChessPosition(firstRank[0], firstRank[1]));
+            whitePieces.add(new ChessPosition(secondRank[0], secondRank[1]));
+            blackPieces.add(new ChessPosition(seventhRank[0], seventhRank[1]));
+            blackPieces.add(new ChessPosition(eighthRank[0], eighthRank[1]));
         }
     }
 
@@ -112,6 +112,46 @@ public class ChessGame {
 
         board.board[endRow][endColumn] = piece;
 
+        if (piece.getTeamColor() == TeamColor.WHITE) {
+            whitePieces.remove(startPosition);
+            whitePieces.add(endPosition);
+        } else {
+            blackPieces.remove(startPosition);
+            blackPieces.add(endPosition);
+        }
+
+    }
+
+    /**
+     * Helper function to look at all of black's possible moves
+     */
+    public HashSet<ChessPosition> blackMoves() {
+        HashSet<ChessPosition> blackMoves = new HashSet<>();
+        for (ChessPosition position : blackPieces) {
+            ChessPiece piece = board.getPiece(position);
+            Collection<ChessMove> pieceMoves = piece.pieceMoves(this.board, position);
+            for (ChessMove move : pieceMoves) {
+                ChessPosition endPosition = move.getEndPosition();
+                blackMoves.add(endPosition);
+            }
+        }
+        return blackMoves;
+    }
+
+    /**
+     * Helper function to look at all of white's possible moves
+     */
+    public HashSet<ChessPosition> whiteMoves() {
+        HashSet<ChessPosition> whiteMoves = new HashSet<>();
+        for (ChessPosition position : whitePieces) {
+            ChessPiece piece = board.getPiece(position);
+            Collection<ChessMove> pieceMoves = piece.pieceMoves(this.board, position);
+            for (ChessMove move : pieceMoves) {
+                ChessPosition endPosition = move.getEndPosition();
+                whiteMoves.add(endPosition);
+            }
+        }
+        return whiteMoves;
     }
 
     /**
@@ -122,6 +162,41 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         // Check if the king is in check by looking at the available moves of other pieces
+        ChessPosition kingPosition = null;
+        if (teamColor == TeamColor.WHITE) {
+            for (ChessPosition position : whitePieces) {
+                ChessPiece piece = this.board.getPiece(position);
+                if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+                    kingPosition = position;
+                }
+            }
+
+            HashSet<ChessPosition> blackMoves = blackMoves();
+            for (ChessPosition endPosition : blackMoves) {
+                if (Objects.equals(endPosition, kingPosition)) {
+                    return true;
+                }
+            }
+        }
+
+        if (teamColor == TeamColor.BLACK) {
+            for (ChessPosition position : blackPieces) {
+                ChessPiece piece = this.board.getPiece(position);
+                if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+                    kingPosition = position;
+                }
+            }
+
+            HashSet<ChessPosition> whiteMoves = whiteMoves();
+            for (ChessPosition endPosition : whiteMoves) {
+                if (Objects.equals(endPosition, kingPosition)) {
+                    return true;
+                }
+            }
+        }
+
+
+
         return false;
     }
 
