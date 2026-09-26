@@ -1,6 +1,8 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
+import java.util.Arrays;
 
 /**
  * A class that can manage a chess game, making moves on a board
@@ -9,9 +11,11 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
+    ChessBoard board = new ChessBoard();
+    ChessGame.TeamColor whoseTurn = TeamColor.WHITE;
 
     public ChessGame() {
-
+        board.resetBoard();
     }
 
     /**
@@ -19,7 +23,7 @@ public class ChessGame {
      */
     public TeamColor getTeamTurn() {
         // return the color of the team whose turn it is to move
-        return null;
+        return whoseTurn;
     }
 
     /**
@@ -31,6 +35,8 @@ public class ChessGame {
         // set the next team to move.
         // Use getTeamTurn() to determine whose turn it was
         // then switch to the other team
+
+        this.whoseTurn = team;
     }
 
     /**
@@ -50,7 +56,11 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         // Check ChessPiece's move set
-        return null;
+
+        ChessPiece piece = board.getPiece(startPosition);
+        Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
+
+        return moves;
     }
 
     /**
@@ -60,11 +70,25 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        // get piece
-        // get current position
-        // get valid moves
-        // get user input for a move
-        // create move object
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+        ChessPiece piece = board.getPiece(startPosition);
+        ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
+
+        int startRow = startPosition.getRow() - 1;
+        int startColumn = startPosition.getColumn() - 1;
+
+        int endRow = endPosition.getRow() - 1;
+        int endColumn = endPosition.getColumn() - 1;
+
+        board.board[startRow][startColumn] = null;
+
+        if (promotionPiece != null) {
+            ChessPiece newPiece = new ChessPiece(whoseTurn, promotionPiece);
+            board.board[endRow][endColumn] = newPiece;
+        }
+
+        board.board[endRow][endColumn] = piece;
 
     }
 
@@ -110,6 +134,11 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         // implement setBoard here
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                this.board.board[i][j] = board.board[i][j];
+            }
+        }
     }
 
     /**
@@ -119,6 +148,29 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         // return the current state of the board
-        return null;
+        return this.board;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+
+        if (!(object instanceof ChessGame)) {
+            return false;
+        }
+
+        ChessGame other = (ChessGame) object;
+
+        if (this.board.equals(other.board)) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.board.hashCode(), whoseTurn);
     }
 }
