@@ -112,14 +112,32 @@ public class ChessGame {
 
         board.board[endRow][endColumn] = piece;
 
-        if (piece.getTeamColor() == TeamColor.WHITE) {
-            whitePieces.remove(startPosition);
-            whitePieces.add(endPosition);
-        } else {
-            blackPieces.remove(startPosition);
-            blackPieces.add(endPosition);
-        }
+        resetPieceMaps();
 
+    }
+
+    /**
+     * Clears the piece maps whitePieces and blackPieces
+     * Reads the current board state and refills them
+     */
+    public void resetPieceMaps() {
+        whitePieces.clear();
+        blackPieces.clear();
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPiece piece = this.board.board[i][j];
+                if (piece != null) {
+                    TeamColor color = piece.getTeamColor();
+                    ChessPosition position = new ChessPosition(i + 1, j + 1);
+                    if (color == TeamColor.WHITE) {
+                        whitePieces.add(position);
+                    } else if (color == TeamColor.BLACK) {
+                        blackPieces.add(position);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -166,8 +184,10 @@ public class ChessGame {
         if (teamColor == TeamColor.WHITE) {
             for (ChessPosition position : whitePieces) {
                 ChessPiece piece = this.board.getPiece(position);
-                if (piece.getPieceType() == ChessPiece.PieceType.KING) {
-                    kingPosition = position;
+                if (piece != null) {
+                    if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+                        kingPosition = position;
+                    }
                 }
             }
 
@@ -182,8 +202,10 @@ public class ChessGame {
         if (teamColor == TeamColor.BLACK) {
             for (ChessPosition position : blackPieces) {
                 ChessPiece piece = this.board.getPiece(position);
-                if (piece.getPieceType() == ChessPiece.PieceType.KING) {
-                    kingPosition = position;
+                if (piece != null) {
+                    if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+                        kingPosition = position;
+                    }
                 }
             }
 
@@ -240,6 +262,7 @@ public class ChessGame {
                 this.board.board[i][j] = board.board[i][j];
             }
         }
+        resetPieceMaps();
     }
 
     /**
