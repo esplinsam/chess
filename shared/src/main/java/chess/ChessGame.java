@@ -3,6 +3,7 @@ package chess;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Arrays;
+import java.util.ArrayList;
 
 /**
  * A class that can manage a chess game, making moves on a board
@@ -13,9 +14,26 @@ import java.util.Arrays;
 public class ChessGame {
     ChessBoard board = new ChessBoard();
     ChessGame.TeamColor whoseTurn = TeamColor.WHITE;
+    ArrayList<int[]> whitePieces = new ArrayList<>();
+    ArrayList<int[]> blackPieces = new ArrayList<>();
+
 
     public ChessGame() {
         board.resetBoard();
+        int[] firstRank = {1, 0};
+        int[] secondRank = {2, 0};
+        int[] seventhRank = {7, 0};
+        int[] eighthRank = {8, 0};
+        for (int i = 1; i < 9; i++) {
+            firstRank[1] = i;
+            secondRank[1] = i;
+            seventhRank[1] = i;
+            eighthRank[1] = i;
+            whitePieces.add(firstRank);
+            whitePieces.add(secondRank);
+            blackPieces.add(seventhRank);
+            blackPieces.add(eighthRank);
+        }
     }
 
     /**
@@ -75,6 +93,10 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPosition);
         ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
 
+        if (piece.getTeamColor() != whoseTurn) {
+            throw new InvalidMoveException("Color of piece being moved does not match the team whose turn it is.");
+        }
+
         int startRow = startPosition.getRow() - 1;
         int startColumn = startPosition.getColumn() - 1;
 
@@ -124,6 +146,10 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         // Triggers if not in check and none of the pieces could move
+        if (isInCheck(teamColor)) {
+            return false;
+        }
+
         return false;
     }
 
