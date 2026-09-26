@@ -163,7 +163,7 @@ public class ChessGame {
 
         ChessGame other = (ChessGame) object;
 
-        if (this.board.equals(other.board)) {
+        if (Objects.equals(this.board, other.board) && this.whoseTurn == other.whoseTurn) {
             return true;
         }
         return false;
