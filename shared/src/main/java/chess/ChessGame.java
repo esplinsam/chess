@@ -143,14 +143,13 @@ public class ChessGame {
     /**
      * Helper function to look at all of black's possible moves
      */
-    public HashSet<ChessPosition> blackMoves() {
-        HashSet<ChessPosition> blackMoves = new HashSet<>();
+    public HashSet<ChessMove> blackMoves() {
+        HashSet<ChessMove> blackMoves = new HashSet<>();
         for (ChessPosition position : blackPieces) {
             ChessPiece piece = board.getPiece(position);
             Collection<ChessMove> pieceMoves = piece.pieceMoves(this.board, position);
             for (ChessMove move : pieceMoves) {
-                ChessPosition endPosition = move.getEndPosition();
-                blackMoves.add(endPosition);
+                blackMoves.add(move);
             }
         }
         return blackMoves;
@@ -159,14 +158,13 @@ public class ChessGame {
     /**
      * Helper function to look at all of white's possible moves
      */
-    public HashSet<ChessPosition> whiteMoves() {
-        HashSet<ChessPosition> whiteMoves = new HashSet<>();
+    public HashSet<ChessMove> whiteMoves() {
+        HashSet<ChessMove> whiteMoves = new HashSet<>();
         for (ChessPosition position : whitePieces) {
             ChessPiece piece = board.getPiece(position);
             Collection<ChessMove> pieceMoves = piece.pieceMoves(this.board, position);
             for (ChessMove move : pieceMoves) {
-                ChessPosition endPosition = move.getEndPosition();
-                whiteMoves.add(endPosition);
+                whiteMoves.add(move);
             }
         }
         return whiteMoves;
@@ -191,8 +189,9 @@ public class ChessGame {
                 }
             }
 
-            HashSet<ChessPosition> blackMoves = blackMoves();
-            for (ChessPosition endPosition : blackMoves) {
+            HashSet<ChessMove> blackMoves = blackMoves();
+            for (ChessMove move : blackMoves) {
+                ChessPosition endPosition = move.getEndPosition();
                 if (Objects.equals(endPosition, kingPosition)) {
                     return true;
                 }
@@ -209,15 +208,14 @@ public class ChessGame {
                 }
             }
 
-            HashSet<ChessPosition> whiteMoves = whiteMoves();
-            for (ChessPosition endPosition : whiteMoves) {
+            HashSet<ChessMove> whiteMoves = whiteMoves();
+            for (ChessMove move : whiteMoves) {
+                ChessPosition endPosition = move.getEndPosition();
                 if (Objects.equals(endPosition, kingPosition)) {
                     return true;
                 }
             }
         }
-
-
 
         return false;
     }
@@ -231,7 +229,38 @@ public class ChessGame {
     public boolean isInCheckmate(TeamColor teamColor) {
         // Triggers if king is in check
         // Checks if any moves can remove king from check
-        return false;
+        if (!(isInCheck(teamColor))) return false;
+        if (teamColor == TeamColor.WHITE) {
+            HashSet<ChessMove> whiteMoves = whiteMoves();
+            ChessBoard tempBoard = this.board;
+            for (ChessMove move : whiteMoves) {
+                ChessPosition startPosition = move.getStartPosition();
+                ChessPosition endPosition = move.getEndPosition();
+                ChessPiece piece = this.board.getPiece(startPosition);
+                this.board.board[endPosition.getRow() - 1][endPosition.getColumn() - 1] = piece;
+                if (!(isInCheck(teamColor))) {
+                    this.board = tempBoard;
+                    return false;
+                }
+                this.board = tempBoard;
+            }
+        } else {
+            HashSet<ChessMove> blackMoves = blackMoves();
+            ChessBoard tempBoard = this.board;
+            for (ChessMove move : blackMoves) {
+                ChessPosition startPosition = move.getStartPosition();
+                ChessPosition endPosition = move.getEndPosition();
+                ChessPiece piece = this.board.getPiece(startPosition);
+                this.board.board[endPosition.getRow() - 1][endPosition.getColumn() - 1] = piece;
+                if (!(isInCheck(teamColor))) {
+                    this.board = tempBoard;
+                    return false;
+                }
+                this.board = tempBoard;
+            }
+        }
+
+        return true;
     }
 
     /**
