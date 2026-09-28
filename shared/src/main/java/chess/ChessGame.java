@@ -14,26 +14,9 @@ import java.util.HashSet;
 public class ChessGame {
     ChessBoard board = new ChessBoard();
     ChessGame.TeamColor whoseTurn = TeamColor.WHITE;
-    ArrayList<ChessPosition> whitePieces = new ArrayList<>();
-    ArrayList<ChessPosition> blackPieces = new ArrayList<>();
-
 
     public ChessGame() {
         board.resetBoard();
-        int[] firstRank = {1, 0};
-        int[] secondRank = {2, 0};
-        int[] seventhRank = {7, 0};
-        int[] eighthRank = {8, 0};
-        for (int i = 1; i < 9; i++) {
-            firstRank[1] = i;
-            secondRank[1] = i;
-            seventhRank[1] = i;
-            eighthRank[1] = i;
-            whitePieces.add(new ChessPosition(firstRank[0], firstRank[1]));
-            whitePieces.add(new ChessPosition(secondRank[0], secondRank[1]));
-            blackPieces.add(new ChessPosition(seventhRank[0], seventhRank[1]));
-            blackPieces.add(new ChessPosition(eighthRank[0], eighthRank[1]));
-        }
     }
 
     /**
@@ -76,7 +59,20 @@ public class ChessGame {
         // Check ChessPiece's move set
 
         ChessPiece piece = board.getPiece(startPosition);
+        TeamColor teamColor = piece.getTeamColor();
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> validMoves = new ArrayList<>();
+
+        ChessBoard tempBoard = new ChessBoard(this.board);
+        for (ChessMove move : moves) {
+            ChessPosition endPosition = move.getEndPosition();
+            this.board.board[endPosition.getRow() - 1][endPosition.getColumn() - 1] = piece;
+            if (!(isInCheck(teamColor))) {
+                this.board = tempBoard;
+                validMoves.add(move);
+            }
+            this.board = tempBoard;
+        }
 
         return moves;
     }
@@ -112,62 +108,46 @@ public class ChessGame {
 
         board.board[endRow][endColumn] = piece;
 
-        resetPieceMaps();
-
     }
 
-    /**
-     * Clears the piece maps whitePieces and blackPieces
-     * Reads the current board state and refills them
-     */
-    public void resetPieceMaps() {
-        whitePieces.clear();
-        blackPieces.clear();
 
+    /**
+     * Helper function to return an array of positions where
+     * the given teams pieces are currently
+     */
+    public ArrayList<ChessPosition> getTeamPieces(TeamColor teamColor) {
+        ArrayList<ChessPosition> teamPieces = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 ChessPiece piece = this.board.board[i][j];
                 if (piece != null) {
-                    TeamColor color = piece.getTeamColor();
-                    ChessPosition position = new ChessPosition(i + 1, j + 1);
-                    if (color == TeamColor.WHITE) {
-                        whitePieces.add(position);
-                    } else if (color == TeamColor.BLACK) {
-                        blackPieces.add(position);
+                    if (piece.getTeamColor() == teamColor) {
+                        ChessPosition position = new ChessPosition(i + 1, j + 1);
+                        teamPieces.add(position);
                     }
                 }
             }
         }
+        return teamPieces;
     }
 
+
+
+
     /**
-     * Helper function to look at all of black's possible moves
+     * Helper function to look at all the given color's possible moves
      */
-    public HashSet<ChessMove> blackMoves() {
-        HashSet<ChessMove> blackMoves = new HashSet<>();
-        for (ChessPosition position : blackPieces) {
+    public HashSet<ChessMove> teamMoves(TeamColor teamColor) {
+        HashSet<ChessMove> teamMoves = new HashSet<>();
+        ArrayList<ChessPosition> teamPieces = getTeamPieces(teamColor);
+        for (ChessPosition position : teamPieces) {
             ChessPiece piece = board.getPiece(position);
             Collection<ChessMove> pieceMoves = piece.pieceMoves(this.board, position);
             for (ChessMove move : pieceMoves) {
-                blackMoves.add(move);
+                teamMoves.add(move);
             }
         }
-        return blackMoves;
-    }
-
-    /**
-     * Helper function to look at all of white's possible moves
-     */
-    public HashSet<ChessMove> whiteMoves() {
-        HashSet<ChessMove> whiteMoves = new HashSet<>();
-        for (ChessPosition position : whitePieces) {
-            ChessPiece piece = board.getPiece(position);
-            Collection<ChessMove> pieceMoves = piece.pieceMoves(this.board, position);
-            for (ChessMove move : pieceMoves) {
-                whiteMoves.add(move);
-            }
-        }
-        return whiteMoves;
+        return teamMoves;
     }
 
     /**
@@ -179,41 +159,28 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor) {
         // Check if the king is in check by looking at the available moves of other pieces
         ChessPosition kingPosition = null;
-        if (teamColor == TeamColor.WHITE) {
-            for (ChessPosition position : whitePieces) {
-                ChessPiece piece = this.board.getPiece(position);
-                if (piece != null) {
-                    if (piece.getPieceType() == ChessPiece.PieceType.KING) {
-                        kingPosition = position;
-                    }
-                }
-            }
 
-            HashSet<ChessMove> blackMoves = blackMoves();
-            for (ChessMove move : blackMoves) {
-                ChessPosition endPosition = move.getEndPosition();
-                if (Objects.equals(endPosition, kingPosition)) {
-                    return true;
+        ArrayList<ChessPosition> teamPieces = getTeamPieces(teamColor);
+        for (ChessPosition position : teamPieces) {
+            ChessPiece piece = this.board.getPiece(position);
+            if (piece != null) {
+                if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+                    kingPosition = position;
                 }
             }
         }
 
-        if (teamColor == TeamColor.BLACK) {
-            for (ChessPosition position : blackPieces) {
-                ChessPiece piece = this.board.getPiece(position);
-                if (piece != null) {
-                    if (piece.getPieceType() == ChessPiece.PieceType.KING) {
-                        kingPosition = position;
-                    }
-                }
-            }
-
-            HashSet<ChessMove> whiteMoves = whiteMoves();
-            for (ChessMove move : whiteMoves) {
-                ChessPosition endPosition = move.getEndPosition();
-                if (Objects.equals(endPosition, kingPosition)) {
-                    return true;
-                }
+        TeamColor opponentColor = null;
+        if (teamColor == TeamColor.WHITE) {
+            opponentColor = TeamColor.BLACK;
+        } else {
+            opponentColor = TeamColor.WHITE;
+        }
+        HashSet<ChessMove> opponentMoves = teamMoves(opponentColor);
+        for (ChessMove move : opponentMoves) {
+            ChessPosition endPosition = move.getEndPosition();
+            if (Objects.equals(endPosition, kingPosition)) {
+                return true;
             }
         }
 
@@ -230,36 +197,19 @@ public class ChessGame {
         // Triggers if king is in check
         // Checks if any moves can remove king from check
         if (!(isInCheck(teamColor))) return false;
-        if (teamColor == TeamColor.WHITE) {
-            HashSet<ChessMove> whiteMoves = whiteMoves();
-            ChessBoard tempBoard = this.board;
-            for (ChessMove move : whiteMoves) {
-                ChessPosition startPosition = move.getStartPosition();
-                ChessPosition endPosition = move.getEndPosition();
-                ChessPiece piece = this.board.getPiece(startPosition);
-                this.board.board[endPosition.getRow() - 1][endPosition.getColumn() - 1] = piece;
-                if (!(isInCheck(teamColor))) {
-                    this.board = tempBoard;
-                    return false;
-                }
-                this.board = tempBoard;
-            }
-        } else {
-            HashSet<ChessMove> blackMoves = blackMoves();
-            ChessBoard tempBoard = this.board;
-            for (ChessMove move : blackMoves) {
-                ChessPosition startPosition = move.getStartPosition();
-                ChessPosition endPosition = move.getEndPosition();
-                ChessPiece piece = this.board.getPiece(startPosition);
-                this.board.board[endPosition.getRow() - 1][endPosition.getColumn() - 1] = piece;
-                if (!(isInCheck(teamColor))) {
-                    this.board = tempBoard;
-                    return false;
-                }
-                this.board = tempBoard;
+
+        Collection<ChessMove> allMoves = new ArrayList<>();
+        ArrayList<ChessPosition> teamPieces = getTeamPieces(teamColor);
+        for (ChessPosition position : teamPieces) {
+            ChessPiece piece = this.board.getPiece(position);
+            Collection<ChessMove> validMoves = validMoves(position);
+            for (ChessMove move : validMoves) {
+                allMoves.add(move);
             }
         }
-
+        if (allMoves == null) {
+            return false;
+        }
         return true;
     }
 
@@ -291,7 +241,6 @@ public class ChessGame {
                 this.board.board[i][j] = board.board[i][j];
             }
         }
-        resetPieceMaps();
     }
 
     /**

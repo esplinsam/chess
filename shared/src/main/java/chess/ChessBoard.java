@@ -18,6 +18,24 @@ public class ChessBoard {
     }
 
     /**
+     * Helper constructor to create an independent copy of the board for checking
+     * This is used in ChessMove.java
+     */
+    public ChessBoard(ChessBoard other) {
+        this.board = new ChessPiece[8][8];
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPiece piece = other.board[i][j];
+
+                if (piece != null) {
+                    this.board[i][j] = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
+                }
+            }
+        }
+    }
+
+    /**
      * Adds a chess piece to the chessboard
      *
      * @param position where to add the piece to
