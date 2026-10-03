@@ -63,18 +63,17 @@ public class ChessGame {
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> validMoves = new ArrayList<>();
 
-        ChessBoard tempBoard = new ChessBoard(this.board);
+        ChessGame tempGame = new ChessGame();
         for (ChessMove move : moves) {
+            tempGame.setBoard(this.getBoard());
             ChessPosition endPosition = move.getEndPosition();
-            this.board.board[endPosition.getRow() - 1][endPosition.getColumn() - 1] = piece;
-            if (!(isInCheck(teamColor))) {
-                this.board = tempBoard;
+            tempGame.board.addPiece(endPosition, piece);
+            if (!(tempGame.isInCheck(teamColor))) {
                 validMoves.add(move);
             }
-            this.board = tempBoard;
         }
 
-        return moves;
+        return validMoves;
     }
 
     /**
@@ -203,11 +202,9 @@ public class ChessGame {
         for (ChessPosition position : teamPieces) {
             ChessPiece piece = this.board.getPiece(position);
             Collection<ChessMove> validMoves = validMoves(position);
-            for (ChessMove move : validMoves) {
-                allMoves.add(move);
-            }
+            allMoves.addAll(validMoves);
         }
-        if (allMoves == null) {
+        if (allMoves.isEmpty()) {
             return false;
         }
         return true;
