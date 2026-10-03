@@ -68,6 +68,7 @@ public class ChessGame {
             tempGame.setBoard(this.getBoard());
             ChessPosition endPosition = move.getEndPosition();
             tempGame.board.addPiece(endPosition, piece);
+            tempGame.board.addPiece(startPosition, null);
             if (!(tempGame.isInCheck(teamColor))) {
                 validMoves.add(move);
             }
