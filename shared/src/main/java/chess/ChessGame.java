@@ -223,6 +223,16 @@ public class ChessGame {
         if (isInCheck(teamColor)) {
             return false;
         }
+        Collection<ChessMove> allMoves = new ArrayList<>();
+        ArrayList<ChessPosition> teamPieces = getTeamPieces(teamColor);
+        for (ChessPosition position : teamPieces) {
+            ChessPiece piece = this.board.getPiece(position);
+            Collection<ChessMove> validMoves = validMoves(position);
+            allMoves.addAll(validMoves);
+        }
+        if (allMoves.isEmpty()) {
+            return true;
+        }
 
         return false;
     }
