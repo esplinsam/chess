@@ -206,9 +206,9 @@ public class ChessGame {
             allMoves.addAll(validMoves);
         }
         if (allMoves.isEmpty()) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**
