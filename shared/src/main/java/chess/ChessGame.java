@@ -89,7 +89,7 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPosition);
 
         if (piece == null) {
-            throw new InvalidMoveException("There is no piece at the given position");
+            return null;
         }
 
         ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
