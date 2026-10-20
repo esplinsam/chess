@@ -88,10 +88,6 @@ public class ChessGame {
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = board.getPiece(startPosition);
 
-        if (piece == null) {
-            return null;
-        }
-
         ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
 
         if (piece.getTeamColor() != whoseTurn) {
