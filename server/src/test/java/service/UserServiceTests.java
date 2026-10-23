@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.request.RegisterRequest;
 import service.result.RegisterResult;
+import service.request.LoginRequest;
+import service.result.LoginResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,26 +27,26 @@ public class UserServiceTests {
     @Test
     public void registerSuccess() throws Exception {
         RegisterRequest request = new RegisterRequest(
-                "Samuel",
+                "username",
                 "password123",
-                "samuel@example.com"
+                "email@example.com"
         );
 
         RegisterResult result = userService.register(request);
 
-        assertEquals("Samuel", result.username());
+        assertEquals("username", result.username());
         assertNotNull(result.authToken());
 
-        assertNotNull(userDAO.getUser("Samuel"));
+        assertNotNull(userDAO.getUser("username"));
         assertNotNull(authDAO.getAuth(result.authToken()));
     }
 
     @Test
     public void registerMissingPassword() {
         RegisterRequest request = new RegisterRequest(
-                "Samuel",
+                "username",
                 null,
-                "samuel@example.com"
+                "email@example.com"
         );
 
         assertThrows(
@@ -56,9 +58,9 @@ public class UserServiceTests {
     @Test
     public void registerDuplicateUsername() throws Exception {
         RegisterRequest request = new RegisterRequest(
-                "Samuel",
+                "username",
                 "password123",
-                "samuel@example.com"
+                "email@example.com"
         );
 
         userService.register(request);
@@ -66,6 +68,38 @@ public class UserServiceTests {
         assertThrows(
                 AlreadyTakenException.class,
                 () -> userService.register(request)
+        );
+    }
+
+    @Test
+    public void loginTests() {
+        assertThrows(
+                BadRequestException.class,
+                () -> userService.login(
+                        new LoginRequest("username", null)
+                )
+        );
+
+        assertThrows(
+                UnauthorizedException.class,
+                () -> userService.login(
+                        new LoginRequest("Unknown", "password")
+                )
+        );
+
+        assertThrows(
+                UnauthorizedException.class,
+                () -> userService.login(
+                        new LoginRequest("Samuel", "wrong")
+                )
+        );
+    }
+
+    @Test
+    public void logoutTests() {
+        assertThrows(
+                UnauthorizedException.class,
+                () -> userService.logout("bad-token")
         );
     }
 }

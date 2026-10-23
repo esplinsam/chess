@@ -4,6 +4,7 @@ import dataaccess.MemoryUserDAO;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import service.ClearService;
+import service.GameService;
 import service.UserService;
 import io.javalin.*;
 
@@ -40,6 +41,37 @@ public class Server {
         javalin.post(
                 "/user",
                 registerHandler::register
+        );
+
+        var sessionHandler =
+                new SessionHandler(userService);
+
+        javalin.post(
+                "/session",
+                sessionHandler::login
+        );
+
+        javalin.delete(
+                "/session",
+                sessionHandler::logout
+        );
+
+        var gameService = new GameService(authDAO, gameDAO);
+        var gameHandler = new GameHandler(gameService);
+
+        javalin.post(
+                "/game",
+                gameHandler::createGame
+        );
+
+        javalin.get(
+                "/game",
+                gameHandler::listGames
+        );
+
+        javalin.put(
+                "/game",
+                gameHandler::joinGame
         );
 
         // Register your endpoints and exception handlers here.
