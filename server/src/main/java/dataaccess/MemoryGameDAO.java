@@ -24,8 +24,8 @@ public class MemoryGameDAO implements GameDAO {
                 gameData.game()
         );
 
-        games.put(gameData.gameID(), gameData);
-        return gameData.gameID();
+        games.put(gameID, newGame);
+        return gameID;
     }
 
     @Override

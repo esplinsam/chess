@@ -15,7 +15,7 @@ public class MemoryAuthDAO implements dataaccess.AuthDAO {
     @Override
     public model.AuthData getAuth(String authToken)
             throws DataAccessException {
-        return authTokens.get(authTokens);
+        return authTokens.get(authToken);
     }
 
     @Override
