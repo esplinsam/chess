@@ -105,7 +105,8 @@ public class GameService {
         String username = authData.username();
 
         if (request == null
-                || request.playerColor() == null) {
+                || request.playerColor() == null
+                || request.gameID() == null) {
 
             throw new BadRequestException(
                     "Missing game ID or player color"
