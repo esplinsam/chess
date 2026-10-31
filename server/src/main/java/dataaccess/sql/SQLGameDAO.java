@@ -9,6 +9,11 @@ import java.util.List;
 
 public class SQLGameDAO implements GameDAO {
 
+    private final String CLEAR =
+            """
+            DELETE FROM games;        
+            """;
+
     @Override
     public int createGame(GameData game) throws DataAccessException {
         return 0;
