@@ -1,18 +1,13 @@
 package passoff.server;
 
-import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseInitializer;
-import model.GameData;
+import model.AuthData;
 import org.junit.jupiter.api.*;
 
-import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
+public class SQLAuthDAOTests {
 
-public class SQLGameDAOTests {
-
-    private SQLGameDAO gameDAO;
+    private SQLAuthDAO authDAO;
 
     @BeforeAll
     static void initializeDatabase() throws DataAccessException {
@@ -21,159 +16,135 @@ public class SQLGameDAOTests {
 
     @BeforeEach
     void setUp() throws DataAccessException {
-        gameDAO = new SQLGameDAO();
-        gameDAO.clear();
+        authDAO = new SQLAuthDAO();
+        authDAO.clear();
     }
 
-    private GameData createTestGame(String gameName) {
-        return new GameData(
-                0,
-                null,
-                null,
-                gameName,
-                new ChessGame()
+    private AuthData createTestAuth() {
+        return new AuthData(
+                "test-auth-token",
+                "testUser"
         );
     }
 
     @Test
-    void createAndGetGame() throws DataAccessException {
-        GameData input = createTestGame("Test Game");
+    void createAndGetAuth() throws DataAccessException {
+        AuthData expected = createTestAuth();
 
-        int gameID = gameDAO.createGame(input);
-        GameData actual = gameDAO.getGame(gameID);
-
-        GameData expected = new GameData(
-                gameID,
-                null,
-                null,
-                "Test Game",
-                input.game()
+        authDAO.createAuth(expected);
+        AuthData actual = authDAO.getAuth(
+                expected.authToken()
         );
 
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
-    void getMissingGameReturnsNull() throws DataAccessException {
-        Assertions.assertNull(gameDAO.getGame(999999));
-    }
-
-    @Test
-    void createGamesGeneratesDistinctIDs()
+    void getMissingAuthReturnsNull()
             throws DataAccessException {
 
-        int firstID = gameDAO.createGame(
-                createTestGame("First Game")
+        AuthData result = authDAO.getAuth(
+                "missing-token"
         );
 
-        int secondID = gameDAO.createGame(
-                createTestGame("Second Game")
-        );
-
-        Assertions.assertNotEquals(firstID, secondID);
+        Assertions.assertNull(result);
     }
 
     @Test
-    void listGamesReturnsEveryGame()
+    void duplicateTokenThrowsException()
             throws DataAccessException {
 
-        int firstID = gameDAO.createGame(
-                createTestGame("First Game")
+        AuthData firstAuth = createTestAuth();
+
+        AuthData duplicateAuth = new AuthData(
+                firstAuth.authToken(),
+                "differentUser"
         );
 
-        int secondID = gameDAO.createGame(
-                createTestGame("Second Game")
-        );
-
-        Collection<GameData> games = gameDAO.listGames();
-
-        Set<Integer> returnedIDs = games.stream()
-                .map(GameData::gameID)
-                .collect(Collectors.toSet());
-
-        Assertions.assertEquals(
-                Set.of(firstID, secondID),
-                returnedIDs
-        );
-    }
-
-    @Test
-    void listGamesReturnsEmptyCollection()
-            throws DataAccessException {
-
-        Collection<GameData> games = gameDAO.listGames();
-
-        Assertions.assertNotNull(games);
-        Assertions.assertTrue(games.isEmpty());
-    }
-
-    @Test
-    void updateGameChangesStoredData()
-            throws DataAccessException {
-
-        int gameID = gameDAO.createGame(
-                createTestGame("Update Game")
-        );
-
-        ChessGame changedChessGame = new ChessGame();
-        changedChessGame.setTeamTurn(
-                ChessGame.TeamColor.BLACK
-        );
-
-        GameData updatedGame = new GameData(
-                gameID,
-                "whitePlayer",
-                "blackPlayer",
-                "Update Game",
-                changedChessGame
-        );
-
-        gameDAO.updateGame(updatedGame);
-
-        GameData result = gameDAO.getGame(gameID);
-
-        Assertions.assertEquals(updatedGame, result);
-    }
-
-    @Test
-    void updateMissingGameThrowsException() {
-        GameData nonexistentGame = new GameData(
-                999999,
-                null,
-                null,
-                "Missing Game",
-                new ChessGame()
-        );
+        authDAO.createAuth(firstAuth);
 
         Assertions.assertThrows(
                 DataAccessException.class,
-                () -> gameDAO.updateGame(nonexistentGame)
+                () -> authDAO.createAuth(duplicateAuth)
         );
     }
 
     @Test
-    void clearRemovesAllGames()
+    void deleteAuthRemovesToken()
             throws DataAccessException {
 
-        int firstID = gameDAO.createGame(
-                createTestGame("First Game")
+        AuthData authData = createTestAuth();
+        authDAO.createAuth(authData);
+
+        authDAO.deleteAuth(authData.authToken());
+
+        Assertions.assertNull(
+                authDAO.getAuth(authData.authToken())
+        );
+    }
+
+    @Test
+    void deleteAuthOnlyRemovesRequestedToken()
+            throws DataAccessException {
+
+        AuthData firstAuth = new AuthData(
+                "first-token",
+                "firstUser"
         );
 
-        int secondID = gameDAO.createGame(
-                createTestGame("Second Game")
+        AuthData secondAuth = new AuthData(
+                "second-token",
+                "secondUser"
         );
 
-        gameDAO.clear();
+        authDAO.createAuth(firstAuth);
+        authDAO.createAuth(secondAuth);
+
+        authDAO.deleteAuth(firstAuth.authToken());
 
         Assertions.assertAll(
-                () -> Assertions.assertTrue(
-                        gameDAO.listGames().isEmpty()
+                () -> Assertions.assertNull(
+                        authDAO.getAuth(firstAuth.authToken())
+                ),
+                () -> Assertions.assertEquals(
+                        secondAuth,
+                        authDAO.getAuth(secondAuth.authToken())
+                )
+        );
+    }
+
+    @Test
+    void deleteMissingAuthDoesNotThrow() {
+        Assertions.assertDoesNotThrow(
+                () -> authDAO.deleteAuth("missing-token")
+        );
+    }
+
+    @Test
+    void clearRemovesAllAuthRecords()
+            throws DataAccessException {
+
+        AuthData firstAuth = new AuthData(
+                "first-token",
+                "firstUser"
+        );
+
+        AuthData secondAuth = new AuthData(
+                "second-token",
+                "secondUser"
+        );
+
+        authDAO.createAuth(firstAuth);
+        authDAO.createAuth(secondAuth);
+
+        authDAO.clear();
+
+        Assertions.assertAll(
+                () -> Assertions.assertNull(
+                        authDAO.getAuth(firstAuth.authToken())
                 ),
                 () -> Assertions.assertNull(
-                        gameDAO.getGame(firstID)
-                ),
-                () -> Assertions.assertNull(
-                        gameDAO.getGame(secondID)
+                        authDAO.getAuth(secondAuth.authToken())
                 )
         );
     }
@@ -182,19 +153,32 @@ public class SQLGameDAOTests {
     void clearLeavesTableReusable()
             throws DataAccessException {
 
-        gameDAO.createGame(createTestGame("Old Game"));
-        gameDAO.clear();
+        AuthData authData = createTestAuth();
 
-        int newID = gameDAO.createGame(
-                createTestGame("New Game")
+        authDAO.createAuth(authData);
+        authDAO.clear();
+        authDAO.createAuth(authData);
+
+        Assertions.assertEquals(
+                authData,
+                authDAO.getAuth(authData.authToken())
+        );
+    }
+
+    @Test
+    void handlesSpecialCharacters()
+            throws DataAccessException {
+
+        AuthData authData = new AuthData(
+                "token-'quoted'-?",
+                "user'o"
         );
 
-        GameData result = gameDAO.getGame(newID);
+        authDAO.createAuth(authData);
 
-        Assertions.assertNotNull(result);
         Assertions.assertEquals(
-                "New Game",
-                result.gameName()
+                authData,
+                authDAO.getAuth(authData.authToken())
         );
     }
 }
