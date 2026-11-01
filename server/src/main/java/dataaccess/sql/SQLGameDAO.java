@@ -7,6 +7,7 @@ import model.GameData;
 import chess.ChessGame;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collection;
 import java.util.ArrayList;
 
@@ -69,60 +70,42 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public int createGame(GameData game) throws DataAccessException {
-        // Extract game data to enter into table
-        int gameID = game.gameID();
-        String whiteUsername = game.whiteUsername();
-        String blackUsername = game.blackUsername();
-        String gameName = game.gameName();
-        String chessGame = serializeGame(game.game());
+        String chessGameJson = serializeGame(game.game());
 
         try (var connection = DatabaseManager.getConnection();
-             var statement = connection.prepareStatement(INSERT_GAME)) {
+             var statement = connection.prepareStatement(
+                     INSERT_GAME,
+                     Statement.RETURN_GENERATED_KEYS
+             )) {
 
-            // Fill in blanks in statement
-            statement.setString(1, whiteUsername);
-            statement.setString(2, blackUsername);
-            statement.setString(3, gameName);
-            statement.setString(4, chessGame);
+            statement.setString(1, game.whiteUsername());
+            statement.setString(2, game.blackUsername());
+            statement.setString(3, game.gameName());
+            statement.setString(4, chessGameJson);
 
+            int rowsCreated = statement.executeUpdate();
 
-            statement.executeUpdate();
-
-
-            try (var connection = DatabaseManager.getConnection();
-                 var statement = connection.prepareStatement(
-                         INSERT_GAME,
-                         Statement.RETURN_GENERATED_KEYS
-                 )) {
-
-                statement.setString(1, gameData.whiteUsername());
-                statement.setString(2, gameData.blackUsername());
-                statement.setString(3, gameData.gameName());
-                statement.setString(
-                        4,
-                        GSON.toJson(gameData.game())
-                );
-
-                statement.executeUpdate();
-
-                try (var generatedKeys = statement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        return generatedKeys.getInt(1);
-                    }
-                }
-
+            if (rowsCreated != 1) {
                 throw new DataAccessException(
-                        "Error: database did not generate a game ID"
-                );
-            } catch (SQLException exception) {
-                throw new DataAccessException(
-                        "Error creating game",
-                        exception
+                        "Error: unable to create game"
                 );
             }
-        }
-        catch (SQLException exception) {
-            throw new DataAccessException("Unable to retrieve user data", exception);
+
+            try (var generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                }
+            }
+
+            throw new DataAccessException(
+                    "Error: database did not generate a game ID"
+            );
+
+        } catch (SQLException exception) {
+            throw new DataAccessException(
+                    "Error creating game",
+                    exception
+            );
         }
     }
 
