@@ -102,7 +102,7 @@ public class SQLGameDAO implements GameDAO {
             );
         }
         catch (SQLException exception) {
-            throw new DataAccessException("Unable to retrieve user data");
+            throw new DataAccessException("Unable to retrieve user data", exception);
         }
     }
 
@@ -136,7 +136,7 @@ public class SQLGameDAO implements GameDAO {
             return null;
 
         } catch (SQLException exception) {
-            throw new DataAccessException("Unable to retrieve game");
+            throw new DataAccessException("Unable to retrieve game", exception);
         }
     }
 
@@ -171,7 +171,8 @@ public class SQLGameDAO implements GameDAO {
 
         } catch (SQLException exception) {
             throw new DataAccessException(
-                    "Unable to list games"
+                    "Unable to list games",
+                    exception
             );
         }
     }
@@ -198,7 +199,7 @@ public class SQLGameDAO implements GameDAO {
             statement.executeUpdate();
         }
         catch (SQLException exception) {
-            throw new DataAccessException("Failed to update user data");
+            throw new DataAccessException("Failed to update user data", exception);
         }
     }
 
@@ -210,7 +211,7 @@ public class SQLGameDAO implements GameDAO {
             statement.executeUpdate();
         }
         catch (SQLException exception) {
-            throw new DataAccessException("Failed to clear user data");
+            throw new DataAccessException("Failed to clear user data", exception);
         }
     }
 
