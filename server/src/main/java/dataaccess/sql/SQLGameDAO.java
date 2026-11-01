@@ -3,13 +3,11 @@ package dataaccess.sql;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import dataaccess.GameDAO;
-import model.AuthData;
 import model.GameData;
 import chess.ChessGame;
 
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.List;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
@@ -21,7 +19,7 @@ public class SQLGameDAO implements GameDAO {
     private final String INSERT_GAME =
             """
             INSERT INTO games (
-                white_username, black_username, game_name, game
+                white_username, black_username, game_name, game_json
             )
             VALUES (?, ?, ?, ?);
             """;
@@ -88,9 +86,8 @@ public class SQLGameDAO implements GameDAO {
             statement.setString(4, chessGame);
 
 
-
-
             statement.executeUpdate();
+
 
             try (var generatedKeys =
                          statement.getGeneratedKeys()) {
@@ -114,6 +111,8 @@ public class SQLGameDAO implements GameDAO {
         try (var connection = DatabaseManager.getConnection();
              var statement = connection.prepareStatement(GET_GAME)) {
 
+            statement.setInt(1, gameID);
+
             try (var response = statement.executeQuery()) {
                 if (response.next()) {
                     // Turn the response into an actual UserData object
@@ -121,7 +120,7 @@ public class SQLGameDAO implements GameDAO {
                     String blackUsername = response.getString("black_username");
                     String gameName = response.getString("game_name");
                     ChessGame game = deserializeGame(
-                            response.getString("game")
+                            response.getString("game_json")
                     );
 
                     return new GameData(
@@ -185,15 +184,21 @@ public class SQLGameDAO implements GameDAO {
         String gameName      = game.gameName();
         ChessGame chessGame  = game.game();
 
+        String gameJson = serializeGame(chessGame);
+
         try (var connection = DatabaseManager.getConnection();
              var statement = connection.prepareStatement(UPDATE_GAME)) {
 
             statement.setInt(1, gameID);
+            statement.setString(2, whiteUsername);
+            statement.setString(3, blackUsername);
+            statement.setString(4, gameName);
+            statement.setString(5, gameJson);
 
             statement.executeUpdate();
         }
         catch (SQLException exception) {
-            throw new DataAccessException("Failed to clear authentication data");
+            throw new DataAccessException("Failed to update user data");
         }
     }
 
@@ -205,7 +210,7 @@ public class SQLGameDAO implements GameDAO {
             statement.executeUpdate();
         }
         catch (SQLException exception) {
-            throw new DataAccessException("Failed to clear authentication data");
+            throw new DataAccessException("Failed to clear user data");
         }
     }
 
