@@ -51,7 +51,7 @@ public class SQLAuthDAO implements AuthDAO {
             statement.executeUpdate();
         }
         catch (SQLException exception) {
-            throw new DataAccessException("Unable to create authentication data", exception);
+            throw new DataAccessException("Unable to create authentication data");
         }
     }
 
@@ -78,7 +78,7 @@ public class SQLAuthDAO implements AuthDAO {
             return null;
 
         } catch (SQLException exception) {
-            throw new DataAccessException("Authentication failed", exception);
+            throw new DataAccessException("Authentication failed");
         }
     }
 
@@ -92,7 +92,7 @@ public class SQLAuthDAO implements AuthDAO {
             statement.executeUpdate();
         }
         catch (SQLException exception) {
-            throw new DataAccessException("Failed to delete item", exception);
+            throw new DataAccessException("Failed to delete item");
         }
     }
 
@@ -104,7 +104,7 @@ public class SQLAuthDAO implements AuthDAO {
             statement.executeUpdate();
         }
         catch (SQLException exception) {
-            throw new DataAccessException("Failed to clear authentication data", exception);
+            throw new DataAccessException("Failed to clear authentication data");
         }
     }
 }

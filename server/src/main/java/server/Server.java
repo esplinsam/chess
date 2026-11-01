@@ -1,8 +1,8 @@
 package server;
 
-import dataaccess.DataAccessException;
-import dataaccess.DatabaseInitializer;
-import dataaccess.sql.*;
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryGameDAO;
+import dataaccess.MemoryUserDAO;
 import io.javalin.Javalin;
 import service.ClearService;
 import service.GameService;
@@ -40,23 +40,6 @@ public class Server {
                 config -> config.staticFiles.add("web")
         );
 
-        javalin.exception(DataAccessException.class, (exception, context) -> {
-           context.status(500);
-           context.contentType("application/json");
-           context.result("""
-                   {"message":"Error: unable to access database"}
-                   """);
-        });
-
-        try {
-            new DatabaseInitializer().initialize();
-        } catch (DataAccessException exception) {
-            throw new RuntimeException(
-                    "error: unable to initialize database",
-                    exception
-            );
-        }
-
         /*
          * Create exactly one instance of each DAO.
          *
@@ -64,9 +47,9 @@ public class Server {
          * instances for different services would create separate maps and
          * prevent endpoints from seeing one another's data.
          */
-        var userDAO = new SQLUserDAO();
-        var authDAO = new SQLAuthDAO();
-        var gameDAO = new SQLGameDAO();
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+        var gameDAO = new MemoryGameDAO();
 
         // Configure the application-clearing endpoint.
         var clearService = new ClearService(
