@@ -80,12 +80,12 @@ public class SQLUserDAO implements UserDAO {
 
         }
         catch (SQLException exception) {
-            throw new DataAccessException("No user with given username");
+            throw new DataAccessException("unable to find user with given username");
         }
         return null;
     }
 
-    @ Override
+    @Override
     public void clear()
             throws DataAccessException {
 
