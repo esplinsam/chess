@@ -50,7 +50,7 @@ public class SQLUserDAO implements UserDAO {
             statement.executeUpdate();
         }
         catch (SQLException exception) {
-            throw new DataAccessException("Unable to retrieve user data");
+            throw new DataAccessException("Unable to retrieve user data", exception);
         }
     }
 
@@ -80,7 +80,7 @@ public class SQLUserDAO implements UserDAO {
 
         }
         catch (SQLException exception) {
-            throw new DataAccessException("unable to find user with given username");
+            throw new DataAccessException("unable to find user with given username", exception);
         }
         return null;
     }
@@ -98,8 +98,4 @@ public class SQLUserDAO implements UserDAO {
             throw new DataAccessException("Connection failed");
         }
     }
-
-
-
-
 }
