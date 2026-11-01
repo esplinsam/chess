@@ -181,28 +181,35 @@ public class SQLGameDAO implements GameDAO {
     }
 
     @Override
-    public void updateGame(GameData game) throws DataAccessException {
-        int gameID           = game.gameID();
-        String whiteUsername = game.whiteUsername();
-        String blackUsername = game.blackUsername();
-        String gameName      = game.gameName();
-        ChessGame chessGame  = game.game();
+    public void updateGame(GameData game)
+            throws DataAccessException {
 
-        String gameJson = serializeGame(chessGame);
+        String gameJson = serializeGame(game.game());
 
         try (var connection = DatabaseManager.getConnection();
-             var statement = connection.prepareStatement(UPDATE_GAME)) {
+             var statement =
+                     connection.prepareStatement(UPDATE_GAME)) {
 
-            statement.setInt(1, gameID);
-            statement.setString(2, whiteUsername);
-            statement.setString(3, blackUsername);
-            statement.setString(4, gameName);
-            statement.setString(5, gameJson);
+            // Parameter positions must match the order in UPDATE_GAME.
+            statement.setString(1, game.whiteUsername());
+            statement.setString(2, game.blackUsername());
+            statement.setString(3, game.gameName());
+            statement.setString(4, gameJson);
+            statement.setInt(5, game.gameID());
 
-            statement.executeUpdate();
-        }
-        catch (SQLException exception) {
-            throw new DataAccessException("Failed to update user data", exception);
+            int rowsUpdated = statement.executeUpdate();
+
+            if (rowsUpdated == 0) {
+                throw new DataAccessException(
+                        "Error: game does not exist"
+                );
+            }
+
+        } catch (SQLException exception) {
+            throw new DataAccessException(
+                    "Error updating game",
+                    exception
+            );
         }
     }
 

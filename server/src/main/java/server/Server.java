@@ -47,6 +47,15 @@ public class Server {
             """);
         });
 
+        try {
+            new DatabaseInitializer().initialize();
+        } catch (DataAccessException exception) {
+            throw new RuntimeException(
+                    "Error initializing database",
+                    exception
+            );
+        }
+
         /*
          * Create exactly one instance of each DAO.
          *
