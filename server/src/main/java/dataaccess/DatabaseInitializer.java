@@ -22,7 +22,7 @@ public class DatabaseInitializer {
             """,
             """
             CREATE TABLE IF NOT EXISTS games (
-                game_id INT NOT NULL,
+                game_id INT NOT NULL AUTO_INCREMENT,
                 white_username VARCHAR(255),
                 black_username VARCHAR(255),
                 game_name VARCHAR(255) NOT NULL,

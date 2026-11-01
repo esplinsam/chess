@@ -89,17 +89,37 @@ public class SQLGameDAO implements GameDAO {
             statement.executeUpdate();
 
 
-            try (var generatedKeys =
-                         statement.getGeneratedKeys()) {
+            try (var connection = DatabaseManager.getConnection();
+                 var statement = connection.prepareStatement(
+                         INSERT_GAME,
+                         Statement.RETURN_GENERATED_KEYS
+                 )) {
 
-                if (generatedKeys.next()) {
-                    return generatedKeys.getInt(1);
+                statement.setString(1, gameData.whiteUsername());
+                statement.setString(2, gameData.blackUsername());
+                statement.setString(3, gameData.gameName());
+                statement.setString(
+                        4,
+                        GSON.toJson(gameData.game())
+                );
+
+                statement.executeUpdate();
+
+                try (var generatedKeys = statement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        return generatedKeys.getInt(1);
+                    }
                 }
-            }
 
-            throw new DataAccessException(
-                    "Database did not generate a game ID"
-            );
+                throw new DataAccessException(
+                        "Error: database did not generate a game ID"
+                );
+            } catch (SQLException exception) {
+                throw new DataAccessException(
+                        "Error creating game",
+                        exception
+                );
+            }
         }
         catch (SQLException exception) {
             throw new DataAccessException("Unable to retrieve user data", exception);

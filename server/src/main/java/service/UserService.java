@@ -10,6 +10,7 @@ import service.result.RegisterResult;
 import service.request.LoginRequest;
 import service.result.LoginResult;
 
+import org.mindrot.jbcrypt.BCrypt;
 import java.util.UUID;
 
 public class UserService {
@@ -49,7 +50,18 @@ public class UserService {
                 request.email()
         );
 
-        userDAO.createUserData(userData);
+        String passwordHash = BCrypt.hashpw(
+                userData.password(),
+                BCrypt.gensalt()
+        );
+
+        UserData storedUser = new UserData(
+                userData.username(),
+                passwordHash,
+                userData.email()
+        );
+
+        userDAO.createUserData(storedUser);
 
         String authToken = UUID.randomUUID().toString();
 
@@ -82,10 +94,10 @@ public class UserService {
         UserData user =
                 userDAO.getUser(request.username());
 
-        if (user == null
-                || !user.password().equals(request.password())) {
+        if (user == null ||
+                !BCrypt.checkpw(request.password(), user.password())) {
             throw new UnauthorizedException(
-                    "Invalid username or password"
+                    "Error: incorrect username or password"
             );
         }
 
