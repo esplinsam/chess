@@ -10,6 +10,7 @@ import chess.ChessGame;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
+import java.util.ArrayList;
 
 import com.google.gson.Gson;
 
@@ -102,14 +103,10 @@ public class SQLGameDAO implements GameDAO {
             throw new DataAccessException(
                     "Database did not generate a game ID"
             );
-
-            return gameID;
         }
         catch (SQLException exception) {
             throw new DataAccessException("Unable to retrieve user data");
         }
-
-        return -999;
     }
 
     @Override
@@ -146,7 +143,6 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public Collection<GameData> listGames() throws DataAccessException {
-        return List.of();
 
         Collection<GameData> games = new ArrayList<>();
 
@@ -192,7 +188,7 @@ public class SQLGameDAO implements GameDAO {
         try (var connection = DatabaseManager.getConnection();
              var statement = connection.prepareStatement(UPDATE_GAME)) {
 
-            statement.setString(1, gameID);
+            statement.setInt(1, gameID);
 
             statement.executeUpdate();
         }

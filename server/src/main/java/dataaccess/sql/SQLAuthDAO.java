@@ -4,7 +4,6 @@ import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import model.AuthData;
-import model.UserData;
 
 import java.sql.SQLException;
 
@@ -52,7 +51,7 @@ public class SQLAuthDAO implements AuthDAO {
             statement.executeUpdate();
         }
         catch (SQLException exception) {
-            throw new DataAccessException("Unable to retrieve user data");
+            throw new DataAccessException("Unable to create authentication data");
         }
     }
 
@@ -61,6 +60,8 @@ public class SQLAuthDAO implements AuthDAO {
 
         try (var connection = DatabaseManager.getConnection();
              var statement = connection.prepareStatement(GET_AUTH)) {
+
+            statement.setString(1, authToken);
 
             try (var response = statement.executeQuery()) {
                 if (response.next()) {
@@ -85,6 +86,8 @@ public class SQLAuthDAO implements AuthDAO {
     public void deleteAuth(String authToken) throws DataAccessException {
         try (var connection = DatabaseManager.getConnection();
              var statement = connection.prepareStatement(DELETE)) {
+
+            statement.setString(1, authToken);
 
             statement.executeUpdate();
         }
