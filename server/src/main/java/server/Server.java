@@ -1,6 +1,7 @@
 package server;
 
 import dataaccess.DataAccessException;
+import dataaccess.DatabaseInitializer;
 import dataaccess.sql.*;
 import io.javalin.Javalin;
 import service.ClearService;
