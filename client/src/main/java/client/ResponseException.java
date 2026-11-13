@@ -1,13 +1,23 @@
 package client;
 
-/**
- * Indicates an error with HTTP or communication
- */
-public class ResponseException extends Exception{
-    public ResponseException(String message) {
+public class ResponseException extends Exception {
+    private final int statusCode;
+
+    public ResponseException(int statusCode, String message) {
         super(message);
+        this.statusCode = statusCode;
     }
-    public ResponseException(String message, Throwable ex) {
-        super(message, ex);
+
+    public ResponseException(
+            int statusCode,
+            String message,
+            Throwable cause
+    ) {
+        super(message, cause);
+        this.statusCode = statusCode;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
     }
 }

@@ -186,6 +186,7 @@ public class ServerFacade {
 
             if (responseJson.isBlank()) {
                 throw new ResponseException(
+                        statusCode,
                         "Error: server returned an empty response"
                 );
             }
@@ -196,6 +197,7 @@ public class ServerFacade {
             throw exception;
         } catch (IOException | RuntimeException exception) {
             throw new ResponseException(
+                    0,
                     "Error communicating with the server",
                     exception
             );
@@ -250,7 +252,7 @@ public class ServerFacade {
             }
         }
 
-        return new ResponseException(message);
+        return new ResponseException(statusCode, message);
     }
 
     private record RegisterRequest(
