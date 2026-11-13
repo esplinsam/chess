@@ -1,7 +1,6 @@
 package client;
 
 import chess.ChessGame;
-import chess.ChessGame.TeamColor;
 import client.dto.*;
 import com.google.gson.Gson;
 
@@ -17,14 +16,22 @@ public class ServerFacade {
     private final String url;
 
     public ServerFacade(String url) {
-        this.url = url;
+        // Prevent endpoint URLs such as http://localhost:8080//user
+        if (url.endsWith("/")) {
+            this.url = url.substring(0, url.length() - 1);
+        } else {
+            this.url = url;
+        }
     }
 
     /**
-     * Registers a new user
+     * Registers a new user.
      */
-    public AuthResponse register(String username, String password, String email)
-            throws ResponseException {
+    public AuthResponse register(
+            String username,
+            String password,
+            String email
+    ) throws ResponseException {
 
         var request = new RegisterRequest(username, password, email);
 
@@ -38,10 +45,12 @@ public class ServerFacade {
     }
 
     /**
-     * Logs a user in
+     * Logs an existing user in.
      */
-    public AuthResponse login(String username, String password)
-            throws ResponseException {
+    public AuthResponse login(
+            String username,
+            String password
+    ) throws ResponseException {
 
         var request = new LoginRequest(username, password);
 
@@ -55,10 +64,9 @@ public class ServerFacade {
     }
 
     /**
-     * Logs a user out
+     * Logs out the user associated with the given token.
      */
-    public void logout(String authToken)
-            throws ResponseException {
+    public void logout(String authToken) throws ResponseException {
         makeRequest(
                 "DELETE",
                 "/session",
@@ -69,10 +77,12 @@ public class ServerFacade {
     }
 
     /**
-     * Creates a new game
+     * Creates a new game.
      */
-    public CreateGameResponse createGame(String authToken, String gameName)
-            throws ResponseException {
+    public CreateGameResponse createGame(
+            String authToken,
+            String gameName
+    ) throws ResponseException {
 
         var request = new CreateGameRequest(gameName);
 
@@ -86,10 +96,11 @@ public class ServerFacade {
     }
 
     /**
-     * Lists a given users games
+     * Retrieves all available games.
      */
-    public ListGamesResponse listGames(String authToken)
-            throws ResponseException {
+    public ListGamesResponse listGames(
+            String authToken
+    ) throws ResponseException {
 
         return makeRequest(
                 "GET",
@@ -101,10 +112,13 @@ public class ServerFacade {
     }
 
     /**
-     * Allows a user to join a game
+     * Joins a game as either the White or Black player.
      */
-    public void joinGame(int gameID, String authToken, TeamColor playerColor)
-            throws ResponseException {
+    public void joinGame(
+            String authToken,
+            int gameID,
+            ChessGame.TeamColor playerColor
+    ) throws ResponseException {
 
         var request = new JoinGameRequest(playerColor, gameID);
 
@@ -255,6 +269,11 @@ public class ServerFacade {
         return new ResponseException(statusCode, message);
     }
 
+    /*
+     * These request records are private because they are implementation
+     * details of the ServerFacade.
+     */
+
     private record RegisterRequest(
             String username,
             String password,
@@ -274,6 +293,4 @@ public class ServerFacade {
             ChessGame.TeamColor playerColor,
             int gameID
     ) {}
-
-
 }

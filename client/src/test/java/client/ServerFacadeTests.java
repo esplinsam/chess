@@ -27,6 +27,10 @@ public class ServerFacadeTests {
     public static void init() {
         server = new Server();
         var port = server.run(0);
+
+        serverUrl = "http://localhost:" + port;
+        facade = new ServerFacade(serverUrl);
+
         System.out.println("Started test HTTP server on " + port);
     }
 
@@ -281,10 +285,10 @@ public class ServerFacadeTests {
         ).gameID();
 
         assertDoesNotThrow(() -> facade.joinGame(
-                gameID,
                 authToken,
-                        ChessGame.TeamColor.WHITE
-                ));
+                gameID,
+                                ChessGame.TeamColor.WHITE
+                        ));
 
         ListGamesResponse response = facade.listGames(authToken);
 
@@ -305,10 +309,10 @@ public class ServerFacadeTests {
         ResponseException exception = assertThrows(
                 ResponseException.class,
                 () -> facade.joinGame(
-                        999999,
                         registration.authToken(),
-                                        ChessGame.TeamColor.WHITE
-                                )
+                        999999,
+                                                        ChessGame.TeamColor.WHITE
+                                                )
         );
 
         assertEquals(400, exception.getStatusCode());
@@ -331,10 +335,10 @@ public class ServerFacadeTests {
         ).gameID();
 
         facade.joinGame(
-                gameID,
                 firstPlayer.authToken(),
-                        ChessGame.TeamColor.WHITE
-                );
+                gameID,
+                                ChessGame.TeamColor.WHITE
+                        );
 
         AuthResponse secondPlayer = facade.register(
                 "secondPlayer",
@@ -345,10 +349,10 @@ public class ServerFacadeTests {
         ResponseException exception = assertThrows(
                 ResponseException.class,
                 () -> facade.joinGame(
-                        gameID,
                         secondPlayer.authToken(),
-                                        ChessGame.TeamColor.WHITE
-                                )
+                        gameID,
+                        ChessGame.TeamColor.WHITE
+                )
         );
 
         assertEquals(403, exception.getStatusCode());
@@ -369,10 +373,10 @@ public class ServerFacadeTests {
         ResponseException exception = assertThrows(
                 ResponseException.class,
                 () -> facade.joinGame(
-                        gameID,
                         "invalid-auth-token",
-                                        ChessGame.TeamColor.BLACK
-                                )
+                        gameID,
+                        ChessGame.TeamColor.BLACK
+                )
         );
 
         assertEquals(401, exception.getStatusCode());
