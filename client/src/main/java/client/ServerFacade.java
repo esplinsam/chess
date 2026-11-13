@@ -1,5 +1,7 @@
 package client;
 
+import chess.ChessGame;
+import chess.ChessGame.TeamColor;
 import client.dto.*;
 import com.google.gson.Gson;
 
@@ -20,33 +22,100 @@ public class ServerFacade {
 
     /**
      * Registers a new user
-     * @param username
-     * @param password
-     * @param email
-     * @return username
-     * @return authToken
      */
-    public AuthResponse register(String username, String password, String email) {
+    public AuthResponse register(String username, String password, String email)
+            throws ResponseException {
 
+        var request = new RegisterRequest(username, password, email);
 
-        return null;
+        return makeRequest(
+                "POST",
+                "/user",
+                null,
+                request,
+                AuthResponse.class
+        );
     }
 
-    public AuthResponse login(String username, String password) {
-        return null;
+    /**
+     * Logs a user in
+     */
+    public AuthResponse login(String username, String password)
+            throws ResponseException {
+
+        var request = new LoginRequest(username, password);
+
+        return makeRequest(
+                "POST",
+                "/session",
+                null,
+                request,
+                AuthResponse.class
+        );
     }
 
-    public void logout() {}
-
-    public CreateGameResponse createGame(String gameName) {
-        return null;
+    /**
+     * Logs a user out
+     */
+    public void logout(String authToken)
+            throws ResponseException {
+        makeRequest(
+                "DELETE",
+                "/session",
+                authToken,
+                null,
+                null
+        );
     }
 
-    public ListGamesResponse listGames() {
-        return null;
+    /**
+     * Creates a new game
+     */
+    public CreateGameResponse createGame(String authToken, String gameName)
+            throws ResponseException {
+
+        var request = new CreateGameRequest(gameName);
+
+        return makeRequest(
+                "POST",
+                "/game",
+                authToken,
+                request,
+                CreateGameResponse.class
+        );
     }
 
-    public void joinGame(int gameID) {}
+    /**
+     * Lists a given users games
+     */
+    public ListGamesResponse listGames(String authToken)
+            throws ResponseException {
+
+        return makeRequest(
+                "GET",
+                "/game",
+                authToken,
+                null,
+                ListGamesResponse.class
+        );
+    }
+
+    /**
+     * Allows a user to join a game
+     */
+    public void joinGame(int gameID, String authToken, TeamColor playerColor)
+            throws ResponseException {
+
+        var request = new JoinGameRequest(playerColor, gameID);
+
+        makeRequest(
+                "PUT",
+                "/game",
+                authToken,
+                request,
+                null
+        );
+    }
 
     /**
      * Sends an HTTP request and converts its JSON response into the
@@ -183,6 +252,26 @@ public class ServerFacade {
 
         return new ResponseException(message);
     }
+
+    private record RegisterRequest(
+            String username,
+            String password,
+            String email
+    ) {}
+
+    private record LoginRequest(
+            String username,
+            String password
+    ) {}
+
+    private record CreateGameRequest(
+            String gameName
+    ) {}
+
+    private record JoinGameRequest(
+            ChessGame.TeamColor playerColor,
+            int gameID
+    ) {}
 
 
 }
